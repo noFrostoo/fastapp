@@ -70,4 +70,4 @@ def receive_something(rq: GiveMeSomethingRq):
 @app.post("/patient", response_model=ResponeName)
 def receive_name(rq: GiveMeName):
     app.counter += 1
-    return ResponeName(patient=rq.dict(), id=app.counter - 1)
+    return ResponeName(patient=rq.dict(), id=app.counter)
