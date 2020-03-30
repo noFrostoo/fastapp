@@ -53,7 +53,7 @@ class GiveMeName(BaseModel):
 
 
 class ResponeName(BaseModel):
-    id: int = app.counter
+    id: int 
     patient: Dict
 
 
