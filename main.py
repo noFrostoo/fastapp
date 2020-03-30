@@ -49,7 +49,7 @@ class GiveMeSomethingRq(BaseModel):
 
 class GiveMeName(BaseModel):
     name: str
-    surname: str
+    surename: str
 
 
 class ResponeName(BaseModel):
