@@ -53,7 +53,7 @@ class GiveMeName(BaseModel):
 
 
 class ResponeName(BaseModel):
-    app.counter: int
+    id: int = app.counter
     patient: Dict
 
 
@@ -67,7 +67,7 @@ def receive_something(rq: GiveMeSomethingRq):
     return GiveMeSomethingResp(received=rq.dict())
 
 
-@app.post("/patient", response_model=GiveMeName)
+@app.post("/patient", response_model=ResponeName)
 def receive_name(rq: GiveMeName):
     app.counter += 1
     return ResponeName(patient=rq.dict())
