@@ -78,5 +78,9 @@ def receive_name(rq: GiveMeName):
 @app.get("/patient/{pk}")
 def find_patien(pk: int):
     for p in paitiens:
-        if p['id'] == pk:
-            return p['patient']
+        try:
+            if p['id'] == pk:
+                return p['patient']
+        except Exception:
+            raise HTTPException(status_code=404, detail="Item not found")
+    return HTTPException(status_code=404, detail="Item not found")
