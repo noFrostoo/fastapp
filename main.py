@@ -72,7 +72,7 @@ def receive_something(rq: GiveMeSomethingRq):
 def receive_name(rq: GiveMeName):
     app.counter += 1
     paitiens.append(ResponeName(patient=rq.dict(), id=app.counter).dict())
-    return ResponeName(patient=rq.dict(), id=app.counter)
+    return ResponeName(patient=rq.dict(), id=app.counter - 1)
 
 
 @app.get("/patient/{pk}")
@@ -83,4 +83,4 @@ def find_patien(pk: int):
                 return p['patient']
         except Exception:
             raise HTTPException(status_code=404, detail="Item not found")
-    return HTTPException(status_code=404, detail="Item not found")
+    raise HTTPException(status_code=404, detail="Item not found")
