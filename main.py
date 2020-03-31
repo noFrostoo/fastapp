@@ -2,10 +2,11 @@
 from typing import Dict
 from fastapi import FastAPI
 from pydantic import BaseModel
+
 app = FastAPI()
 
 app.counter = 0
-
+paitiens = []
 
 @app.get("/")
 def hello_world():
@@ -70,4 +71,12 @@ def receive_something(rq: GiveMeSomethingRq):
 @app.post("/patient", response_model=ResponeName)
 def receive_name(rq: GiveMeName):
     app.counter += 1
+    paitiens.append(ResponeName(patient=rq.dict(), id=app.counter).dict())
     return ResponeName(patient=rq.dict(), id=app.counter)
+
+
+@app.get("/patient/{pk}")
+def find_patien(pk: int):
+    for p in paitiens:
+        if p['id'] == pk:
+            return p['patient']
