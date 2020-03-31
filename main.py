@@ -82,5 +82,5 @@ def find_patien(pk: int):
             if p['id'] == pk:
                 return p['patient']
         except Exception:
-            raise HTTPException(status_code=404, detail="Item not found")
-    raise HTTPException(status_code=404, detail="Item not found")
+            raise HTTPException(status_code=204, detail="Item not found")
+    raise HTTPException(status_code=204, detail="Item not found")
