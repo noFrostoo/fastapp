@@ -23,8 +23,14 @@ def hello_world():
 
 @app.get("/welcome")
 def hello_worldd(request: Request, session_token: str = Cookie(None)):
-    if is_logged(session_token):
+    if session_token in tookens:
         return templates.TemplateResponse("hi.html", {"request": request, "user": "trudnY"})
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect email or password",
+            headers={"WWW-Authenticate": "Basic"},
+        )
 
 
 @app.get("/hello/{name}")
