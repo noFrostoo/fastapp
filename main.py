@@ -74,6 +74,10 @@ class GiveMeName(BaseModel):
     surename: str
 
 
+class Patiensget(BaseModel):
+    paitiens: dict
+
+
 class ResponeName(BaseModel):
     id: int
     patient: Dict
@@ -94,17 +98,19 @@ def receive_name(rq: GiveMeName, session_token: str = Cookie(None)):
     if is_logged(session_token):
         app.counter += 1
         paitiens.append(ResponeName(patient=rq.dict(), id=app.counter - 1).dict())
-        return ResponeName(patient=rq.dict(), id=app.counter - 1)
+        response = RedirectResponse(f"/patient/{app.counter-1}")
+        return response
 
 
-@app.get("/patient")
+@app.get("/patient", response_model=Patiensget)
 def give_all_paitens(session_token: str = Cookie(None)):
     if is_logged(session_token):
         to_return = {}
         for p in paitiens:
             to_return[f'id_{p["id"]}'] = p['patient']
-        y = json.loads(to_return)
-        return y
+        respone = Patiensget(paitiens=to_return)
+        respone.status_code = 300
+        return respone
 
 @app.get("/patient/{pk}")
 def find_patien(pk: int, session_token: str = Cookie(None)):
@@ -125,6 +131,9 @@ def del_patien(pk: int, session_token: str = Cookie(None)):
             try:
                 if p['id'] == pk:
                     paitiens.remove(p)
+                    y = RedirectResponse("/")
+                    y.status_code = 300
+                    return y
             except Exception:
                 raise HTTPException(status_code=204, detail="Item not found")
         raise HTTPException(status_code=204, detail="Item not found")
