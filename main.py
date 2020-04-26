@@ -1,3 +1,4 @@
+# main.py
 from typing import Dict, List
 from fastapi import FastAPI, Request, Query, Depends, HTTPException, status, Response, Cookie
 from pydantic import BaseModel
@@ -6,7 +7,7 @@ from starlette.responses import RedirectResponse
 import secrets
 from hashlib import sha256
 from fastapi.templating import Jinja2Templates
-
+import json
 
 app = FastAPI()
 templates = Jinja2Templates(directory="")
@@ -96,6 +97,15 @@ def receive_name(rq: GiveMeName, session_token: str = Cookie(None)):
         return ResponeName(patient=rq.dict(), id=app.counter - 1)
 
 
+@app.get("/patient")
+def give_all_paitens(session_token: str = Cookie(None)):
+    if is_logged(session_token):
+        to_return = {}
+        for p in paitiens:
+            to_return[f'id_{p["id"]}'] = p['patient']
+        y = json.loads(to_return)
+        return y
+
 @app.get("/patient/{pk}")
 def find_patien(pk: int, session_token: str = Cookie(None)):
     if is_logged(session_token):
@@ -103,6 +113,18 @@ def find_patien(pk: int, session_token: str = Cookie(None)):
             try:
                 if p['id'] == pk:
                     return p['patient']
+            except Exception:
+                raise HTTPException(status_code=204, detail="Item not found")
+        raise HTTPException(status_code=204, detail="Item not found")
+
+
+@app.delete("/patient/{pk}")
+def del_patien(pk: int, session_token: str = Cookie(None)):
+    if is_logged(session_token):
+        for p in paitiens:
+            try:
+                if p['id'] == pk:
+                    paitiens.remove(p)
             except Exception:
                 raise HTTPException(status_code=204, detail="Item not found")
         raise HTTPException(status_code=204, detail="Item not found")
@@ -139,13 +161,14 @@ def is_logged(key):
             headers={"WWW-Authenticate": "Basic"},
         )
 
+
 @app.post("/login")
 def logiing_in(response: Response, username: str = Depends(get_current_username)):
     session_token = sha256(bytes(f"{username}{app.secret_key}", encoding="utf8")).hexdigest()
     response = RedirectResponse("/Welcome")
     response.set_cookie(key="session_token", value=session_token)
     response.status_code = 200
-    tookens.append(session_token)
+    app.tookens.append(session_token)
     return response
 
 @app.post("/logout")
@@ -153,4 +176,4 @@ def logout():
     response = RedirectResponse(url="/")
     response.delete_cookie(key="session_token")
     return response
-    
+
