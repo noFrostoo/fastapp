@@ -10,7 +10,11 @@ paitiens = []
 
 @app.get("/")
 def hello_world():
-    return {"message": "Hello World during the coronavirus pandemic!"}
+    return {"message": "Witam na tym stosie"}
+
+@app.get("/welcome")
+def hello_world():
+    return {"message": "Witam na tym stosie"}
 
 
 @app.get("/hello/{name}")
