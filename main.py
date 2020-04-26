@@ -1,4 +1,3 @@
-# main.py
 from typing import Dict, List
 from fastapi import FastAPI, Request, Query, Depends, HTTPException, status, Response, Cookie
 from pydantic import BaseModel
@@ -15,15 +14,17 @@ app.counter = 0
 paitiens = []
 security = HTTPBasic()
 app.secret_key = "I love cookies and wired things come to play with me"
-tookens = []
+app.tookens = []
 
 @app.get("/")
 def hello_world():
     return {"message": "Witam na tym stosie"}
 
+
+@app.post("/welcome")
 @app.get("/welcome")
 def hello_worldd(request: Request, session_token: str = Cookie(None)):
-    if session_token in tookens:
+    if session_token in app.tookens:
         return templates.TemplateResponse("hi.html", {"request": request, "user": "trudnY"})
     else:
         raise HTTPException(
@@ -31,7 +32,6 @@ def hello_worldd(request: Request, session_token: str = Cookie(None)):
             detail="Incorrect email or password",
             headers={"WWW-Authenticate": "Basic"},
         )
-
 
 @app.get("/hello/{name}")
 def hello_name(name: str):
@@ -106,7 +106,17 @@ def find_patien(pk: int, session_token: str = Cookie(None)):
             except Exception:
                 raise HTTPException(status_code=204, detail="Item not found")
         raise HTTPException(status_code=204, detail="Item not found")
-    
+
+# # @app.get("/request_query_string_discovery/")
+# # def read_item(request: Request):
+# #     print(f"{request.query_params=}")
+# #     return request.query_params
+
+# @app.get("/request_query_string_discovery/")
+# def read_items(u: str = Query("default"), q: List[str] = Query(None)):
+#     query_items = {"q": q, "u": u}
+#     return query_items
+
 def get_current_username(credentials: HTTPBasicCredentials = Depends(security)):
     correct_username = secrets.compare_digest(credentials.username, "trudnY")
     correct_password = secrets.compare_digest(credentials.password, "PaC13Nt")
@@ -120,7 +130,7 @@ def get_current_username(credentials: HTTPBasicCredentials = Depends(security)):
 
 
 def is_logged(key):
-    if key in tookens:
+    if key in app.tookens:
         return True
     else:
         raise HTTPException(
@@ -132,9 +142,9 @@ def is_logged(key):
 @app.post("/login")
 def logiing_in(response: Response, username: str = Depends(get_current_username)):
     session_token = sha256(bytes(f"{username}{app.secret_key}", encoding="utf8")).hexdigest()
-    response = RedirectResponse("/welcome")
+    response = RedirectResponse("/Welcome")
     response.set_cookie(key="session_token", value=session_token)
-    response.status_code = 301
+    response.status_code = 200
     tookens.append(session_token)
     return response
 
@@ -143,5 +153,4 @@ def logout():
     response = RedirectResponse(url="/")
     response.delete_cookie(key="session_token")
     return response
-
     
