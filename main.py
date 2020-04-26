@@ -1,12 +1,21 @@
 # main.py
-from typing import Dict
-from fastapi import FastAPI, HTTPException
+from typing import Dict, List
+from fastapi import FastAPI, Request, Query, Depends, HTTPException, status, Response, Cookie
 from pydantic import BaseModel
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
+from starlette.responses import RedirectResponse
+import secrets
+from hashlib import sha256
+from fastapi.templating import Jinja2Templates
+templates = Jinja2Templates(directory="templates")
 
 app = FastAPI()
 
 app.counter = 0
 paitiens = []
+security = HTTPBasic()
+app.secret_key = "I love cookies and wired things come to play with me"
+tookens = []
 
 @app.get("/")
 def hello_world():
@@ -88,3 +97,30 @@ def find_patien(pk: int):
         except Exception:
             raise HTTPException(status_code=204, detail="Item not found")
     raise HTTPException(status_code=204, detail="Item not found")
+    
+def get_current_username(credentials: HTTPBasicCredentials = Depends(security)):
+    correct_username = secrets.compare_digest(credentials.username, "trudnY")
+    correct_password = secrets.compare_digest(credentials.password, "PaC13Nt")
+    if not (correct_username and correct_password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect email or password",
+            headers={"WWW-Authenticate": "Basic"},
+        )
+    return credentials.username
+
+
+@app.post("/login")
+def logiing_in(response: Response, username: str = Depends(get_current_username)):
+    session_token = sha256(bytes(f"{username}{app.secret_key}")).hexdigest()
+    respone = RedirectResponse("/Welcome")
+    response.set_cookie(key="session_token", value=session_token)
+    tookens.append(session_token)
+    return response
+
+@app.post("/logout")
+def logout():
+    response = RedirectResponse(url="/")
+    response.delete_cookie("Authorization", domain="localtest.me")
+    return response
+    
