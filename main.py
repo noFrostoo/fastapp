@@ -170,7 +170,7 @@ def is_logged(key):
             headers={"WWW-Authenticate": "Basic"},
         )
 
-
+@app.get("/login")
 @app.post("/login")
 def logiing_in(response: Response, username: str = Depends(get_current_username)):
     session_token = sha256(bytes(f"{username}{app.secret_key}", encoding="utf8")).hexdigest()
