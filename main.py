@@ -82,21 +82,23 @@ def receive_something(rq: GiveMeSomethingRq):
 
 
 @app.post("/patient", response_model=ResponeName)
-def receive_name(rq: GiveMeName):
-    app.counter += 1
-    paitiens.append(ResponeName(patient=rq.dict(), id=app.counter - 1).dict())
-    return ResponeName(patient=rq.dict(), id=app.counter - 1)
+def receive_name(rq: GiveMeName, session_token: str = Cookie(None)):
+    if is_logged(session_token):
+        app.counter += 1
+        paitiens.append(ResponeName(patient=rq.dict(), id=app.counter - 1).dict())
+        return ResponeName(patient=rq.dict(), id=app.counter - 1)
 
 
 @app.get("/patient/{pk}")
-def find_patien(pk: int):
-    for p in paitiens:
-        try:
-            if p['id'] == pk:
-                return p['patient']
-        except Exception:
-            raise HTTPException(status_code=204, detail="Item not found")
-    raise HTTPException(status_code=204, detail="Item not found")
+def find_patien(pk: int, session_token: str = Cookie(None)):
+    if is_logged(session_token):
+        for p in paitiens:
+            try:
+                if p['id'] == pk:
+                    return p['patient']
+            except Exception:
+                raise HTTPException(status_code=204, detail="Item not found")
+        raise HTTPException(status_code=204, detail="Item not found")
     
 def get_current_username(credentials: HTTPBasicCredentials = Depends(security)):
     correct_username = secrets.compare_digest(credentials.username, "trudnY")
@@ -110,17 +112,29 @@ def get_current_username(credentials: HTTPBasicCredentials = Depends(security)):
     return credentials.username
 
 
+def is_logged(key):
+    if key in tookens:
+        return True
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect email or password",
+            headers={"WWW-Authenticate": "Basic"},
+        )
+
 @app.post("/login")
 def logiing_in(response: Response, username: str = Depends(get_current_username)):
-    session_token = sha256(bytes(f"{username}{app.secret_key}")).hexdigest()
-    respone = RedirectResponse("/Welcome")
+    session_token = sha256(bytes(f"{username}{app.secret_key}", encoding="utf8")).hexdigest()
+    response = RedirectResponse("/Welcome")
     response.set_cookie(key="session_token", value=session_token)
+    response.status_code = 200
     tookens.append(session_token)
     return response
 
 @app.post("/logout")
 def logout():
     response = RedirectResponse(url="/")
-    response.delete_cookie("Authorization", domain="localtest.me")
+    response.delete_cookie(key="session_token")
     return response
+
     
