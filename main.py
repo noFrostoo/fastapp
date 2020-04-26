@@ -108,9 +108,10 @@ def give_all_paitens(session_token: str = Cookie(None)):
         to_return = {}
         for p in paitiens:
             to_return[f'id_{p["id"]}'] = p['patient']
-        respone = Patiensget(paitiens=to_return)
-        respone.status_code = 300
-        return respone
+        #respone = Patiensget(paitiens=to_return)
+        #respone.status_code = 300
+        return to_return
+
 
 @app.get("/patient/{pk}")
 def find_patien(pk: int, session_token: str = Cookie(None)):
@@ -120,8 +121,8 @@ def find_patien(pk: int, session_token: str = Cookie(None)):
                 if p['id'] == pk:
                     return p['patient']
             except Exception:
-                raise HTTPException(status_code=204, detail="Item not found")
-        raise HTTPException(status_code=204, detail="Item not found")
+                raise HTTPException(status_code=301, detail="Item not found")
+        raise HTTPException(status_code=301, detail="Item not found")
 
 
 @app.delete("/patient/{pk}")
@@ -132,11 +133,10 @@ def del_patien(pk: int, session_token: str = Cookie(None)):
                 if p['id'] == pk:
                     paitiens.remove(p)
                     y = RedirectResponse("/")
-                    y.status_code = 300
                     return y
             except Exception:
-                raise HTTPException(status_code=204, detail="Item not found")
-        raise HTTPException(status_code=204, detail="Item not found")
+                raise HTTPException(status_code=301, detail="Item not found")
+        raise HTTPException(status_code=301, detail="Item not found")
 
 # # @app.get("/request_query_string_discovery/")
 # # def read_item(request: Request):
