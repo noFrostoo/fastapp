@@ -7,10 +7,10 @@ from starlette.responses import RedirectResponse
 import secrets
 from hashlib import sha256
 from fastapi.templating import Jinja2Templates
-templates = Jinja2Templates(directory="templates")
+
 
 app = FastAPI()
-
+templates = Jinja2Templates(directory="")
 app.counter = 0
 paitiens = []
 security = HTTPBasic()
@@ -22,8 +22,9 @@ def hello_world():
     return {"message": "Witam na tym stosie"}
 
 @app.get("/welcome")
-def hello_world():
-    return {"message": "Witam na tym stosie"}
+def hello_worldd(request: Request, session_token: str = Cookie(None)):
+    if is_logged(session_token):
+        return templates.TemplateResponse("hi.html", {"request": request, "user": "trudnY"})
 
 
 @app.get("/hello/{name}")
