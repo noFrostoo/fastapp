@@ -110,6 +110,8 @@ def give_all_paitens(session_token: str = Cookie(None)):
             to_return[f'id_{p["id"]}'] = p['patient']
         #respone = Patiensget(paitiens=to_return)
         #respone.status_code = 300
+        if len(to_return) == 0:
+            raise HTTPException(status_code=301, detail="Item not found")
         return to_return
 
 
