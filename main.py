@@ -174,7 +174,7 @@ def is_logged(key):
 @app.post("/login")
 def logiing_in(response: Response, username: str = Depends(get_current_username)):
     session_token = sha256(bytes(f"{username}{app.secret_key}", encoding="utf8")).hexdigest()
-    response = RedirectResponse("/Welcome")
+    response = RedirectResponse("/welcome")
     response.set_cookie(key="session_token", value=session_token)
     response.status_code = 200
     app.tookens.append(session_token)
