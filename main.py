@@ -203,6 +203,7 @@ def logout():
 
 @app.get("/tracks")
 async def root(page: int = Query(0), per_page: int = Query(10)):
+    app.db_connection.row_factory = lambda cursor, x: x
     tracks = app.db_connection.execute("SELECT * FROM tracks").fetchall()
     to_return = []
     for t in tracks[page:page+per_page]:
