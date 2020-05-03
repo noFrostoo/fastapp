@@ -205,7 +205,7 @@ def logout():
 async def root(page: int = Query(0), per_page: int = Query(10)):
     tracks = app.db_connection.execute("SELECT * FROM tracks").fetchall()
     to_return = []
-    for t in tracks[page:per_page+1]:
+    for t in tracks[page:per_page]:
         to_return.append(json.dumps({
             "TrackId": t[0],
             "Name": t[1],
