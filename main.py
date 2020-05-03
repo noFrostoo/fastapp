@@ -221,3 +221,9 @@ async def root(page: int = Query(0), per_page: int = Query(10)):
         to_return.append(y)
     return to_return
 
+@app.get("/tracks/composers/")
+async def root(com: str = Query("")):
+    tracks = app.db_connection.execute("SELECT name FROM tracks Where composer = ?",(com,)).fetchall()
+    if len(tracks) == 0:
+        return HTTPException(status_code=404, detail={"error": "Not Found"})
+    return tracks
