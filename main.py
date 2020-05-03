@@ -203,7 +203,7 @@ def logout():
 
 @app.get("/tracks")
 async def root(page: int = Query(0), per_page: int = Query(10)):
-    tracks = app.db_connection.execute("SELECT name FROM tracks").fetchall()
+    tracks = app.db_connection.execute("SELECT * FROM tracks").fetchall()
     to_return = []
     for t in tracks[:10]:
         to_return.append({
