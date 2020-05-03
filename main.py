@@ -1,4 +1,5 @@
 # main.py
+import sqlite3
 from typing import Dict, List
 from fastapi import FastAPI, Request, Query, Depends, HTTPException, status, Response, Cookie
 from pydantic import BaseModel
@@ -16,6 +17,17 @@ paitiens = []
 security = HTTPBasic()
 app.secret_key = "I love cookies and wired things come to play with me"
 app.tookens = []
+
+
+@app.on_event("startup")
+async def startup():
+    app.db_connection = sqlite3.connect('chinook.db')
+
+
+@app.on_event("shutdown")
+async def shutdown():
+    app.db_connection.close()
+
 
 @app.get("/")
 def hello_world():
@@ -187,4 +199,23 @@ def logout():
     response = RedirectResponse(url="/")
     response.delete_cookie(key="session_token")
     return response
+
+
+@app.get("/tracks")
+async def root(page: int = Query(0), per_page: int = Query(10)):
+    tracks = app.db_connection.execute("SELECT name FROM tracks").fetchall()
+    to_return = []
+    for t in tracks[:10]:
+        to_return.append({
+            "TrackId": t[0],
+            "Name": t[1],
+            "AlbumId": t[2],
+            "MediaTypeId": t[3],
+            "GenreId": t[4],
+            "Composer": t[5],
+            "Milliseconds": t[6],
+            "Bytes": t[7],
+            "UnitPrice": t[8]
+        })
+    return to_return
 
