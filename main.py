@@ -206,7 +206,7 @@ async def root(page: int = Query(0), per_page: int = Query(10)):
     tracks = app.db_connection.execute("SELECT * FROM tracks").fetchall()
     to_return = []
     for t in tracks[page:per_page]:
-        to_return.append(json.dumps({
+        x = json.dumps({
             "TrackId": t[0],
             "Name": t[1],
             "AlbumId": t[2],
@@ -216,6 +216,8 @@ async def root(page: int = Query(0), per_page: int = Query(10)):
             "Milliseconds": t[6],
             "Bytes": t[7],
             "UnitPrice": t[8]
-        }))
+        })
+        y = json.loads(x)
+        to_return.append(y)
     return to_return
 
