@@ -206,7 +206,7 @@ async def root(page: int = Query(0), per_page: int = Query(10)):
     app.db_connection.row_factory = lambda cursor, x: x
     tracks = app.db_connection.execute("SELECT * FROM tracks").fetchall()
     to_return = []
-    for t in tracks[page:page+per_page]:
+    for t in tracks[page+1:page+1+per_page]:
         x = json.dumps({
             "TrackId": t[0],
             "Name": t[1],
