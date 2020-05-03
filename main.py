@@ -217,5 +217,5 @@ async def root(page: int = Query(0), per_page: int = Query(10)):
             "Bytes": t[7],
             "UnitPrice": t[8]
         })
-    return to_return
+    return json.dumps(to_return)
 
