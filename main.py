@@ -226,4 +226,4 @@ async def root(com: str = Query("")):
     tracks = app.db_connection.execute("SELECT name FROM tracks Where composer = ?",(com,)).fetchall()
     if len(tracks) == 0:
         return HTTPException(status_code=404, detail={"error": "Not Found"})
-    return tracks
+    return sorted(tracks)
